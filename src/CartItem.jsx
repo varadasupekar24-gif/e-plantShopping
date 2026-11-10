@@ -3,7 +3,7 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { removeItem, updateQuantity } from './CartSlice';
 
-function CartItem() {
+function CartItem({ onContinueShopping }) {
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart.items);
 
@@ -13,7 +13,9 @@ function CartItem() {
   );
 
   const handleQuantityChange = (id, quantity) => {
-    if (quantity >= 1) {
+    if (quantity < 1) {
+      dispatch(removeItem(id));
+    } else {
       dispatch(updateQuantity({ id, quantity }));
     }
   };
@@ -30,24 +32,33 @@ function CartItem() {
         <div>
           <h2>Your cart is empty!</h2>
           <p>Explore our beautiful plants and add your favourites.</p>
+          <button onClick={onContinueShopping}>
+            Continue Shopping
+          </button>
         </div>
       ) : (
         <>
           <div className="cart-items">
             {cartItems.map((item) => (
               <div className="cart-card" key={item.id}>
-                <img src={item.image} alt={item.name} />
+                <img
+                  className="cart-item-image"
+                  src={item.image}
+                  alt={item.name}
+                />
 
                 <div className="cart-details">
-                  <h2>{item.name}</h2>
-                  <p>Price: ₹{item.price}</p>
+                  <h2 className="cart-item-name">{item.name}</h2>
+
+                  <p className="cart-item-price">
+                    Price: ₹{item.price}
+                  </p>
 
                   <div className="quantity-controls">
                     <button
                       onClick={() =>
                         handleQuantityChange(item.id, item.quantity - 1)
                       }
-                      disabled={item.quantity <= 1}
                     >
                       -
                     </button>
@@ -77,8 +88,17 @@ function CartItem() {
 
           <div className="cart-summary">
             <h2>Total Amount: ₹{totalAmount}</h2>
-            <button onClick={() => alert('Thank you for shopping with Paradise Nursery!')}>
+
+            <button
+              onClick={() =>
+                alert('Thank you for shopping with Paradise Nursery!')
+              }
+            >
               Checkout
+            </button>
+
+            <button onClick={onContinueShopping}>
+              Continue Shopping
             </button>
           </div>
         </>
